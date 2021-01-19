@@ -18,6 +18,7 @@ defmodule LivehiveWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
+    live "/:hive_name", PageLive, :index
   end
 
   # Other scopes may use custom stacks.

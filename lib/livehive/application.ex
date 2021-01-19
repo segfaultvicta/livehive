@@ -12,9 +12,10 @@ defmodule Livehive.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Livehive.PubSub},
       # Start the Endpoint (http/https)
-      LivehiveWeb.Endpoint
+      LivehiveWeb.Endpoint,
       # Start a worker by calling: Livehive.Worker.start_link(arg)
       # {Livehive.Worker, arg}
+      Livehive.Actors.Hive
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

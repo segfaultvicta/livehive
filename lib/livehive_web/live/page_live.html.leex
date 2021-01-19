@@ -1,48 +1,135 @@
-<section class="phx-hero">
-  <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
-  <p>Peace of mind from prototype to production</p>
-
-  <form phx-change="suggest" phx-submit="search">
-    <input type="text" name="q" value="<%= @query %>" placeholder="Live dependency search" list="results" autocomplete="off"/>
-    <datalist id="results">
-      <%= for {app, _vsn} <- @results do %>
-        <option value="<%= app %>"><%= app %></option>
-      <% end %>
-    </datalist>
-    <button type="submit" phx-disable-with="Searching...">Go to Hexdocs</button>
-  </form>
+<section class="section">
+  <nav class="level">
+    <div class="level-left">
+      <div class="level-item">
+        <h2 class="title">HIVEMIND
+      </div>
+    </div>
+    <div class="level-right">
+    <%= if @hive_joined do %>
+      <div class="level-item">
+        <div class="level is-mobile">
+          <div class="level-item">
+            <span class="is-size-4">Hive: <%= @hive_name %></span>
+          </div>
+          <div class="level-item" phx-click="leaveHive">
+            <span class="icon"><i class="fas fa-2x fa-times"></i></span>
+          </div>
+      </div>
+    <% else %>
+      <div class="level-item">
+        <form phx-change="validateHive" phx-submit="enterHive" style="margin-bottom: 0px;">
+          <input name="hiveName" class="input is-large <%= @validate_class %>" type="text" placeholder="Enter Hive...">
+        </form>
+      </div>
+    <% end %>
+    </div>
+  </nav>
+  <div class="container <%= @show_name %>">
+    <span class="is-size-4">You are <%= @user_name %>.</span>
+    <span class="icon-text">
+      <a data-micromodal-trigger="rename-modal" href='javascript:void(0);'><span>
+        <span class="icon mx-4"><i class="fas fa-2x fa-edit"></i></span>
+      </span>
+      </a>
+      <span phx-click="anonymise">
+        <span class="icon mx-4"><i class="fas fa-2x fa-sync"></i></span>
+      </span>
+    </span>
+  </div>
 </section>
 
-<section class="row">
-  <article class="column">
-    <h2>Resources</h2>
+<%= if @hive_joined do %>
+  <div class="temperature-model">
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: <%= @hive.happy %>%"><%= @hive.happy %>%</div>
+      <div class="progress-bar bg-warning" style="width: <%= @hive.neutral %>%"><%= @hive.neutral %>%</div>
+      <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" style="width: <%= @hive.sad %>%"><%= @hive.sad %>%</div>
+    </div>
+  </div>
+  <hr>
+  <div class="sentiments-model">
+    <div class="columns is-mobile">
+      <div class="column"></div>
+      <div class="column is-three-quarters-mobile is-one-third-desktop">
+
+        <div class="temperature-sentiments level is-mobile">
+          <div phx-click="changeSentiment" phx-value-sentiment="happy" class="level-item sentiment-icon <%= @selected.happy %> is-narrow">
+            <span class="icon"><i class="fas fa-3x fa-smile"></i></span>
+          </div>
+          <div phx-click="changeSentiment" phx-value-sentiment="neutral" class="level-item sentiment-icon <%= @selected.neutral %> is-narrow">
+            <span class="icon"><i class="fas fa-3x fa-meh"></i></span>
+          </div>
+          <div phx-click="changeSentiment" phx-value-sentiment="sad" class="level-item sentiment-icon <%= @selected.sad %> is-narrow">
+            <span class="icon"><i class="fas fa-3x fa-frown"></i></span>
+          </div>
+        </div> <!-- end temperature-sentiments -->
+
+        <div class="blocker-sentiments level is-mobile">
+          <div phx-click="changeSentiment" phx-value-sentiment="question" class="level-item sentiment-icon <%= @selected.question %> %> is-narrow">
+            <span class="icon"><i class="fas fa-3x fa-question-circle"></i></span>
+          </div>
+          <div phx-click="changeSentiment" phx-value-sentiment="order" class="level-item sentiment-icon <%= @selected.order %> is-narrow">
+            <span class="icon"><i class="fas fa-3x fa-pause-circle"></i></span>
+          </div>
+          <div phx-click="changeSentiment" phx-value-sentiment="hand" class="level-item sentiment-icon <%= @selected.hand %> is-narrow">
+            <span class="icon"><i class="fas fa-3x fa-exclamation-circle"></i></span>
+          </div>
+          <div phx-click="changeSentiment" phx-value-sentiment="hardno" class="level-item sentiment-icon <%= @selected.hardno %> is-narrow">
+            <span class="icon"><i class="fas fa-3x fa-ban"></i></span>
+          </div>
+        </div> <!-- end blocker-sentiments -->
+      </div> <!-- end inner column -->
+      <div class="column"></div>
+    </div>
+  </div> <!-- end sentiments-model -->
+
+  <%= if Enum.count(@hive.blocks) > 0 do %>
+  <hr>
+  <div class="blocking-sentiments">
     <ul>
-      <li>
-        <a href="https://hexdocs.pm/phoenix/overview.html">Guides &amp; Docs</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix">Source</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix/blob/v1.5/CHANGELOG.md">v1.5 Changelog</a>
-      </li>
+    <%= for blocker <- @hive.blocks do %>
+      <li><%= render_blocker_message(blocker) %></li>
+    <% end %>
     </ul>
-  </article>
-  <article class="column">
-    <h2>Help</h2>
-    <ul>
-      <li>
-        <a href="https://elixirforum.com/c/phoenix-forum">Forum</a>
-      </li>
-      <li>
-        <a href="https://webchat.freenode.net/?channels=elixir-lang">#elixir-lang on Freenode IRC</a>
-      </li>
-      <li>
-        <a href="https://twitter.com/elixirphoenix">Twitter @elixirphoenix</a>
-      </li>
-      <li>
-        <a href="https://elixir-slackin.herokuapp.com/">Elixir on Slack</a>
-      </li>
-    </ul>
-  </article>
-</section>
+  </div>
+  <% end %>
+
+<% else %>
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container">
+        <h2 class="subtitle has-text-justified">
+          Hivemind is a tool for building consensus within a group. It's ideal for situations where you don't have the ability to look at everyone in the group and see hand gestures, or for when the members of a group prefer some level of anonymity while being able to explicitly track the overall emotional temperature of a room.
+        </h2>
+        <span>
+          Enter the name of the hive you want to join at the top of the screen.
+        </span>
+      </div>
+    </div>
+  </section>
+<% end %>
+
+<div class="modal micromodal-slide" id="rename-modal" aria-hidden="true">
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+    <div id="modal-container" class="modal__container" role="dialog" aria-modal="true" aria-labelledby="rename-modal-title">
+      <header id="modal-header" class="modal__header">
+        <h2 class="modal__title" id="rename-modal-title">
+          Change Name
+        </h2>
+        <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+      </header>
+      <div id="modal-content-content" class="modal-content-content">
+        <div id="modal-content" class="modal__content" id="rename-modal-content">
+          <form phx-submit="changeName">
+            <input name="userName" class="input is-large" type="text" value="<%= @user_name %>">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  MicroModal.init();
+</script>
